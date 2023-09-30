@@ -14,20 +14,15 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Terraform for main
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 3.0.0
-
-    - name: Terra Destroy
-      id: destroy
-      run: terraform destroy -auto-approve
+      uses: hashicorp/setup-terraform@v1
 
     - name: Initialize Terraform for main
-      #if: ${{ !steps.destroy.outputs.skip }}
+      id: Initialize
       run: terraform init
 
     - name: Apply Terraform for main
-      #if: ${{ !steps.destroy.outputs.skip }}
+      id: Apply
+      if: ${{ !steps.Initialize.outputs.skip }}
       run: terraform apply -auto-approve
 
   # terraform_genesis:
@@ -75,6 +70,7 @@ jobs:
 
     steps:
     - name: Checkout code
+      if: ${{ !steps.Apply.outputs.skip }}
       uses: actions/checkout@v2
 
     # - name: Install dependencies
@@ -102,6 +98,7 @@ jobs:
 
     steps:
     - name: Checkout code
+      if: ${{ !steps.Apply.outputs.skip }}
       uses: actions/checkout@v2
 
     # - name: Install dependencies
