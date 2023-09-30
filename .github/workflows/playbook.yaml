@@ -5,32 +5,35 @@ on:
     branches:
       - main  # Change to your desired branch
 
-env:
-  TF_ACCESS: "${{ secrets.BLOCKCHAIN }}"
 
 jobs:
   terraform_main:
     runs-on: ubuntu-latest
 
-    steps:
+   steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
     - name: Set up Terraform for genesis
       uses: hashicorp/setup-terraform@v1
       with:
-        terraform_version: 1.0.0  
+        terraform_version: 1.0.0
+
+    - name: Check for existing GCP instances
+      id: check-instances
+      run: |
+        existing_instances=$(terraform state list | grep google_compute_instance) || true
+        echo "::set-output name=instances_exist::$(if [ -n "$existing_instances" ]; then echo "true"; else echo "false"; fi)"
+      continue-on-error: true
 
     - name: Debugging Info
       run: terraform validate
-
-    - name: Debugging Info
-      run: echo "${{ env.TF_ACCESS }}" > gcp-auth.json
 
     - name: Initialize Terraform for genesis
       run: terraform init
 
     - name: Apply Terraform for genesis
+      if: steps.check-instances.outputs.instances_exist != 'true'
       run: terraform apply -auto-approve
 
   # terraform_genesis:
