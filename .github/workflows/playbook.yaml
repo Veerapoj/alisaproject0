@@ -96,7 +96,7 @@ jobs:
         #  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth.json
 
         # Run Ansible playbook for genesis
-        ansible-playbook genesis/ansible-genesis.yml
+        ansible-playbook genesis/ansible-genesis.yaml
 
   ansible_validators:
     needs: terraform_main # needs is required for reference and to prevent both jobs running at the same time
@@ -124,21 +124,21 @@ jobs:
         #  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator01.json
 
         # Run Ansible playbook for validator01
-        ansible-playbook ansible-validators01.yaml
+        ansible-playbook validators/ansible-validators01.yaml
 
         # Set up Google Cloud JSON authentication file for validator02
         #  echo "${{ env.TF_ACCESS }}" > gcp-auth-validator02.json
         #  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator02.json
 
         # Run Ansible playbook for validator02
-        ansible-playbook ansible-validators02.yaml
+        ansible-playbook validators/ansible-validators02.yaml
 
         # Set up Google Cloud JSON authentication file for validator03
         #  echo "${{ env.TF_ACCESS }}" > gcp-auth-validator03.json
         #  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator03.json
 
         # Run Ansible playbook for validator03
-        ansible-playbook ansible-validators03.yaml
+        ansible-playbook validators/ansible-validators03.yaml
 
   cleanup:
     runs-on: ubuntu-latest
