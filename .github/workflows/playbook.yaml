@@ -1,4 +1,4 @@
-name: Terraform and Ansible Workflow
+name: Build Blockchain
 
 on:
   push:
@@ -6,24 +6,6 @@ on:
       - main  # Change to your desired branch
 
 jobs:
-  cleanup_instances:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Terraform for Cleanup
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.0.0  # Use the version you need
-
-    - name: Initialize Terraform for Cleanup
-      run: terraform init -chdir=main.tf
-
-    - name: Destroy Instances
-      run: terraform destroy -auto-approve -chdir=main.tf
-
   terraform_genesis:
     runs-on: ubuntu-latest
 
@@ -41,6 +23,7 @@ jobs:
 
     - name: Apply Terraform for Instance 1
       run: terraform apply -auto-approve -chdir=genesis/genesis.tf
+      if: env.INSTANCES_EXIST != 'true'
 
   terraform_validators:
     runs-on: ubuntu-latest
@@ -59,6 +42,7 @@ jobs:
 
     - name: Apply Terraform for validators
       run: terraform apply -auto-approve -chdir=validators/validator.tf
+      if: env.INSTANCES_EXIST != 'true'
 
   ansible_genesis:
     runs-on: ubuntu-latest
