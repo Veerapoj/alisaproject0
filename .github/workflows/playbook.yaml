@@ -16,18 +16,18 @@ jobs:
     - name: Set up Terraform for main
       uses: hashicorp/setup-terraform@v1
       with:
-        terraform_version: 1.0.0
+        terraform_version: 3.0.0
 
     - name: Terra Destroy
       id: destroy
       run: terraform destroy -auto-approve
 
     - name: Initialize Terraform for main
-      if: ${{ !steps.destroy.outputs.skip }}
+      #if: ${{ !steps.destroy.outputs.skip }}
       run: terraform init
 
     - name: Apply Terraform for main
-      if: ${{ !steps.destroy.outputs.skip }}
+      #if: ${{ !steps.destroy.outputs.skip }}
       run: terraform apply -auto-approve
 
   # terraform_genesis:
