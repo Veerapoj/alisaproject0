@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Terraform for genesis
+    - name: Set up Terraform for main
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 1.0.0
@@ -25,13 +25,10 @@ jobs:
         echo "::set-output name=instances_exist::$(if [ -n "$existing_instances" ]; then echo "true"; else echo "false"; fi)"
       continue-on-error: true
 
-    - name: Debugging Info
-      run: terraform validate
-
-    - name: Initialize Terraform for genesis
+    - name: Initialize Terraform for main
       run: terraform init
 
-    - name: Apply Terraform for genesis
+    - name: Apply Terraform for main
       if: steps.check-instances.outputs.instances_exist != 'true'
       run: terraform apply -auto-approve
 
