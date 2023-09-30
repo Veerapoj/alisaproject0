@@ -9,9 +9,6 @@ jobs:
   terraform_main:
     runs-on: ubuntu-latest
 
-    outputs: # job outputs
-      skip: ${{ steps.terraform_main.outputs.skip }}
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -68,8 +65,8 @@ jobs:
   #     run: terraform apply -auto-approve
 
   ansible_genesis:
-    needs: terraform_main # needs is required for reference and to prevent both jobs running at the same time
-    if: ${{ !steps.terraform_main.outputs.skip }}
+    needs: Apply # needs is required for reference and to prevent both jobs running at the same time
+    if: ${{ !steps.Apply.outputs.skip }}
     runs-on: ubuntu-latest
 
     steps:
@@ -96,8 +93,8 @@ jobs:
         ansible-playbook genesis/ansible-genesis.yml
 
   ansible_validators:
-    needs: terraform_main # needs is required for reference and to prevent both jobs running at the same time
-    if: ${{ !steps.terraform_main.outputs.skip }}
+    needs: Apply # needs is required for reference and to prevent both jobs running at the same time
+    if: ${{ !steps.Apply.outputs.skip }}
     runs-on: ubuntu-latest
 
     steps:
