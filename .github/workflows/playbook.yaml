@@ -5,8 +5,11 @@ on:
     branches:
       - main  # Change to your desired branch
 
+env:
+  TF_ACCESS: "${{ secrets.BLOCKCHAIN }}"
+
 jobs:
-  terraform_genesis:
+  terraform_main:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,35 +24,57 @@ jobs:
     - name: Debugging Info
       run: terraform validate
 
+    - name: Debugging Info
+      run: echo "${{ env.TF_ACCESS }}" > gcp-auth.json
+
     - name: Initialize Terraform for genesis
       run: terraform init
 
     - name: Apply Terraform for genesis
       run: terraform apply -auto-approve
-      if: env.INSTANCES_EXIST != 'true'
 
-  terraform_validators:
-    runs-on: ubuntu-latest
+  # terraform_genesis:
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
 
-    - name: Set up Terraform for validators
-      uses: hashicorp/setup-terraform@v1
-      with:
-        terraform_version: 1.0.0  
+  #   - name: Set up Terraform for genesis
+  #     uses: hashicorp/setup-terraform@v1
+  #     with:
+  #       terraform_version: 1.0.0  
 
-    - name: Initialize Terraform for validators
-      run: terraform init
+  #   - name: Debugging Info
+  #     run: terraform validate
 
-    - name: Apply Terraform for validators
-      run: terraform apply -auto-approve
-      if: env.INSTANCES_EXIST != 'true'
+  #   - name: Initialize Terraform for genesis
+  #     run: terraform init
+
+  #   - name: Apply Terraform for genesis
+  #     run: terraform apply -auto-approve
+
+  # terraform_validators:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
+
+  #   - name: Set up Terraform for validators
+  #     uses: hashicorp/setup-terraform@v1
+  #     with:
+  #       terraform_version: 1.0.0  
+
+  #   - name: Initialize Terraform for validators
+  #     run: terraform init
+
+  #   - name: Apply Terraform for validators
+  #     run: terraform apply -auto-approve
 
   ansible_genesis:
     runs-on: ubuntu-latest
-    needs: terraform_genesis
+    needs: terraform_main
 
     steps:
     - name: Checkout code
@@ -68,15 +93,15 @@ jobs:
     - name: Configure Ansible for genesis
       run: |
         # # Set up Google Cloud JSON authentication file for genesis
-        # echo "$GCP_AUTH_JSON" > gcp-auth.json
-        # export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth.json
+         echo "${{ env.TF_ACCESS }}" > gcp-auth.json
+         export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth.json
 
         # Run Ansible playbook for genesis
         ansible-playbook genesis/ansible-genesis.yml
 
   ansible_validators:
     runs-on: ubuntu-latest
-    needs: terraform_validators
+    needs: terraform_main
 
     steps:
     - name: Checkout code
@@ -95,22 +120,22 @@ jobs:
     - name: Configure Ansible for Validators
       run: |
         # Set up Google Cloud JSON authentication file for validator01
-        # echo "$GCP_AUTH_JSON_VALIDATOR01" > gcp-auth-validator01.json
-        # export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator01.json
+         echo "${{ env.TF_ACCESS }}" > gcp-auth-validator01.json
+         export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator01.json
 
         # Run Ansible playbook for validator01
         ansible-playbook ansible-validators01.yaml
 
         # Set up Google Cloud JSON authentication file for validator02
-        # echo "$GCP_AUTH_JSON_VALIDATOR02" > gcp-auth-validator02.json
-        # export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator02.json
+         echo "${{ env.TF_ACCESS }}" > gcp-auth-validator02.json
+         export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator02.json
 
         # Run Ansible playbook for validator02
         ansible-playbook ansible-validators02.yaml
 
         # Set up Google Cloud JSON authentication file for validator03
-        # echo "$GCP_AUTH_JSON_VALIDATOR03" > gcp-auth-validator03.json
-        # export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator03.json
+         echo "${{ env.TF_ACCESS }}" > gcp-auth-validator03.json
+         export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator03.json
 
         # Run Ansible playbook for validator03
         ansible-playbook ansible-validators03.yaml
@@ -125,8 +150,11 @@ jobs:
 
     - name: Cleanup Terraform
       run: |
+        # Destroy Terraform resources for terraform_main
+        terraform destroy -auto-approve
+        
         # Destroy Terraform resources for _genesis
-        terraform destroy -auto-approve -chdir=genesis/genesis.tf
+        #terraform destroy -auto-approve -chdir=genesis/genesis.tf
 
         # Destroy Terraform resources for validators
-        terraform destroy -auto-approve -chdir=validators/validator.tf
+        #terraform destroy -auto-approve -chdir=validators/validator.tf

@@ -1,6 +1,6 @@
 # Configure the Google Cloud provider
 provider "google" {
-  credentials = file("blockchain.json")
+  credentials = file("gcp-auth.json")
   project     = "alisa-dev"
   region      = "asia-southeast1"  # Singapore region for both instances and static IPs
 }

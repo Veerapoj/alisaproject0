@@ -147,7 +147,7 @@
     - name: Set GCP project and credentials file
       set_fact:
         gcp_project: "alisa-dev"
-        gcp_cred_file: "../blockchain.json"
+        gcp_cred_file: "$(pwd)/gcp-auth.json"
 
     - name: Get GCP instances facts
       gcp_compute_instance_facts:
