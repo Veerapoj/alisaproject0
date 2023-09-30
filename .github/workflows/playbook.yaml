@@ -26,7 +26,7 @@ jobs:
         ls -l genesis/genesis.tf
 
     - name: Initialize Terraform for Instance 1
-      run: terraform init -chdir=genesis/genesis.tf
+      run: terraform init -chdir=genesis/genesis.tf -reconfigure
 
     - name: Apply Terraform for Instance 1
       run: terraform apply -auto-approve -chdir=genesis/genesis.tf
@@ -45,7 +45,7 @@ jobs:
         terraform_version: 1.0.0  
 
     - name: Initialize Terraform for validators
-      run: terraform init -chdir=validators/validator.tf
+      run: terraform init -chdir=validators/validator.tf -reconfigure
 
     - name: Apply Terraform for validators
       run: terraform apply -auto-approve -chdir=validators/validator.tf
