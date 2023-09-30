@@ -65,13 +65,12 @@ jobs:
   #     run: terraform apply -auto-approve
 
   ansible_genesis:
-    if: ${{ !steps.Apply.outputs.skip }}
+    needs: terraform_main # needs is required for reference and to prevent both jobs running at the same time
+    if: ${{ !steps.terraform_main.outputs.skip }}
     runs-on: ubuntu-latest
-    needs: terraform_main
 
     steps:
     - name: Checkout code
-      if: ${{ !steps.Apply.outputs.skip }}
       uses: actions/checkout@v2
 
     # - name: Install dependencies
@@ -94,8 +93,9 @@ jobs:
         ansible-playbook genesis/ansible-genesis.yml
 
   ansible_validators:
+    needs: terraform_main # needs is required for reference and to prevent both jobs running at the same time
+    if: ${{ !steps.terraform_main.outputs.skip }}
     runs-on: ubuntu-latest
-    needs: terraform_main
 
     steps:
     - name: Checkout code
