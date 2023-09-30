@@ -18,6 +18,13 @@ jobs:
       with:
         terraform_version: 1.0.0  
 
+    - name: Debugging Info
+      run: |
+        echo "Current working directory: $(pwd)"
+        ls -l genesis/genesis.tf
+        echo "Running terraform init in the following directory:"
+        ls -l genesis/genesis.tf
+
     - name: Initialize Terraform for Instance 1
       run: terraform init -chdir=genesis/genesis.tf
 
