@@ -19,14 +19,10 @@ jobs:
         terraform_version: 1.0.0  
 
     - name: Debugging Info
-      run: |
-        echo "Current working directory: $(pwd)"
-        ls -l genesis/genesis.tf
-        echo "Running terraform init in the following directory:"
-        ls -l genesis/genesis.tf
+      run: terraform validate
 
     - name: Initialize Terraform for Instance 1
-      run: terraform init -chdir=genesis/genesis.tf -reconfigure
+      run: terraform init
 
     - name: Apply Terraform for Instance 1
       run: terraform apply -auto-approve -chdir=genesis/genesis.tf
@@ -45,7 +41,7 @@ jobs:
         terraform_version: 1.0.0  
 
     - name: Initialize Terraform for validators
-      run: terraform init -chdir=validators/validator.tf -reconfigure
+      run: terraform init
 
     - name: Apply Terraform for validators
       run: terraform apply -auto-approve -chdir=validators/validator.tf
