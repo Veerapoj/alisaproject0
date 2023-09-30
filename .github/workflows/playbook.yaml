@@ -9,6 +9,9 @@ jobs:
   terraform_main:
     runs-on: ubuntu-latest
 
+    outputs: # job outputs
+      skip: ${{ steps.terraform_main.outputs.skip }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
