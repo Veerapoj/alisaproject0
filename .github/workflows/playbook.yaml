@@ -79,21 +79,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y software-properties-common
-        sudo apt-add-repository ppa:ansible/ansible
-        sudo apt-get update
-        sudo apt-get install -y ansible
-        sudo ansible-galaxy collection install community.google
-        sudo pip install google-auth
+    # - name: Install dependencies
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y software-properties-common
+    #     sudo apt-add-repository ppa:ansible/ansible
+    #     sudo apt-get update
+    #     sudo apt-get install -y ansible
+    #     sudo ansible-galaxy collection install community.google
+    #     sudo pip install google-auth
 
     - name: Configure Ansible for genesis
       run: |
         # # Set up Google Cloud JSON authentication file for genesis
-         echo "${{ env.TF_ACCESS }}" > gcp-auth.json
-         export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth.json
+        #  echo "${{ env.TF_ACCESS }}" > gcp-auth.json
+        #  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth.json
 
         # Run Ansible playbook for genesis
         ansible-playbook genesis/ansible-genesis.yml
@@ -106,35 +106,35 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y software-properties-common
-        sudo apt-add-repository ppa:ansible/ansible
-        sudo apt-get update
-        sudo apt-get install -y ansible
-        sudo ansible-galaxy collection install community.google
-        sudo pip install google-auth
+    # - name: Install dependencies
+    #   run: |
+    #     sudo apt-get update
+    #     sudo apt-get install -y software-properties-common
+    #     sudo apt-add-repository ppa:ansible/ansible
+    #     sudo apt-get update
+    #     sudo apt-get install -y ansible
+    #     sudo ansible-galaxy collection install community.google
+    #     sudo pip install google-auth
 
     - name: Configure Ansible for Validators
       run: |
         # Set up Google Cloud JSON authentication file for validator01
-         echo "${{ env.TF_ACCESS }}" > gcp-auth-validator01.json
-         export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator01.json
+        #  echo "${{ env.TF_ACCESS }}" > gcp-auth-validator01.json
+        #  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator01.json
 
         # Run Ansible playbook for validator01
         ansible-playbook ansible-validators01.yaml
 
         # Set up Google Cloud JSON authentication file for validator02
-         echo "${{ env.TF_ACCESS }}" > gcp-auth-validator02.json
-         export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator02.json
+        #  echo "${{ env.TF_ACCESS }}" > gcp-auth-validator02.json
+        #  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator02.json
 
         # Run Ansible playbook for validator02
         ansible-playbook ansible-validators02.yaml
 
         # Set up Google Cloud JSON authentication file for validator03
-         echo "${{ env.TF_ACCESS }}" > gcp-auth-validator03.json
-         export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator03.json
+        #  echo "${{ env.TF_ACCESS }}" > gcp-auth-validator03.json
+        #  export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator03.json
 
         # Run Ansible playbook for validator03
         ansible-playbook ansible-validators03.yaml
