@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "alisa-dev",
+  "private_key_id": "85eeba6801c661b4bfc1a53fbfa60dbfb0911224",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDEuUezJ98qFLiS\nqSQuXIDd+8UNdBS9ywFfhMpqhhflHsImJyJLrkUJiIiSH/ic/xvsrmqpE+xwsHsd\nOE2vAiqg9H9Me111qtvO8USiW3FZNT7l8J9+DzrKghei0OZoxGReEGnlBWMZVS6X\nuY0AuNdDbA0SFNbZHw1q97S+B3LqnykBHHfFL4Fhkhl/8PUt4IZ0LSxzep86rZGC\n99/NOSUJm4hn9b2G4fOTiEL5ia9La3RBB3i0MkhA52/qXkLXz6peqW3H3fas1Fax\n9n5vyjwFXSMFRGGqutKHEW5YN/GGOkqcE2/omxwdCsJAe3U6pOEDD7b1mg02wdRe\n5YH/NKVfAgMBAAECggEABThyKyfH4nrUn8EQ/pFM3YHfa6kkyG6ZNZA1ZkNIYg0B\naPgejwnrt2zh9u1rRbtNYegKWOdNndCednA2kN+Krbp0oF0hEKIn8s4bR1W25H+n\nENIPDCOE/g0avyLdDR2ybilFriKzoQn40mTwVXsSQgNINi51uc2lp6zgJS+BwLEh\nnCxji++FIyU1mtdVMQ0Ntl32zzA+XEcIL+qq2H42lfhjaZfpeopFG+Lv+yXZZBjB\nw1CsXaVxszIB/0K8yNGPgeNjb+TlzEdGwCqvWZg0rrs6eMdbdwLx4zXQW5hHs3Yq\n5NGnXEWBtr+55btl+2RzRTZNZ58L14JmXFrMr2WaCQKBgQD4S/299GipT1hurlUr\nkKHTNOY9tY3d7ObaRVdRHgUIuInz5BraNPSe7WoeAQFlP9wnOzkzGW2YWeuITBV9\nYORgE+lXpPW2apzZdIULyAwmRBkZztoUChOao8JLIL3hVPa/anNcV87oJD939+gq\npin+UffK5dXnUcNpAenaHMKumQKBgQDK07AmB/c8js0MVE3XipzqoSMWtTt/jYD5\nY4b65kus0AFbTqUHHtZxsoAANUauyO5vbn8mxNItoxIziEr4/+7lyd7HOMQJbSms\nRx5aTVSzQ9FpzBczARSZuf2hKDi85HiOT76eL+NW8Uu/PNRk+8w2X7UWMhhGyOrP\n71J/AixGtwKBgQCkj2C1g4XWKKM4f8ws2meWHmo2HdzPZ9I8eVZ8iYPWms+7V8PA\nOPajWkBJcGsnWqKjUaoARusO3RGwPJTFivDxCGFPWCINay1XJdWD0GrU9a8ZHrIE\nNAV4KO59ck7GR9RdWsToP73+tv9lmGVD1urgBh1PWPJipBr5vm3pw8P3iQKBgB0q\nc5oEazj6D+JF/SuRcx8KLNGHHhcpcfJqrW5Gz3r6LjfDB1gOxydyU5W0E4Xuvtqn\nOQGKK+8EFAn0/1Lu+ptwe+iJ8Sap2+Q6FdNGa3ebuPFNt8hNz3iLlj0mW4JOGEfe\nj7qPiFFoQUwuoxwiWSs4eAHJElSbb6iW8XXyCgvhAoGBANFHFYZCZyK8+AzGSy+g\nWIvosV3k/74jme1hAeANZn5RsA1a1wDhxgvDeRgi+FU7moThYc0S+AXmPh01r+bG\nygwOcz8g20jB/hT9kU3KL3yGpcz110URyKXpkwfEew0wrlLpe1TWbttZnpiTAzdb\nGIu2UJgDDDF9Pzo4jd8Nswi5\n-----END PRIVATE KEY-----\n",
+  "client_email": "blockchain@alisa-dev.iam.gserviceaccount.com",
+  "client_id": "100969833937259432633",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/blockchain%40alisa-dev.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
