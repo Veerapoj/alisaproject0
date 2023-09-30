@@ -20,8 +20,12 @@ jobs:
       id: Initialize
       run: terraform init
 
+    - name: Destroy Terraform for main
+      id: destroy
+      run: terraform destroy -auto-approve
+
     - name: Apply Terraform for main
-      id: Apply
+      if: ${{ !steps.destroy.outputs.skip }}
       run: terraform apply -auto-approve
 
   # terraform_genesis:
