@@ -22,7 +22,6 @@ jobs:
 
     - name: Apply Terraform for main
       id: Apply
-      if: ${{ !steps.Initialize.outputs.skip }}
       run: terraform apply -auto-approve
 
   # terraform_genesis:
@@ -65,8 +64,7 @@ jobs:
   #     run: terraform apply -auto-approve
 
   ansible_genesis:
-    needs: Apply # needs is required for reference and to prevent both jobs running at the same time
-    if: ${{ !steps.Apply.outputs.skip }}
+    needs: terraform_main # needs is required for reference and to prevent both jobs running at the same time
     runs-on: ubuntu-latest
 
     steps:
@@ -93,8 +91,7 @@ jobs:
         ansible-playbook genesis/ansible-genesis.yml
 
   ansible_validators:
-    needs: Apply # needs is required for reference and to prevent both jobs running at the same time
-    if: ${{ !steps.Apply.outputs.skip }}
+    needs: terraform_main # needs is required for reference and to prevent both jobs running at the same time
     runs-on: ubuntu-latest
 
     steps:
