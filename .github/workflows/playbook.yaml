@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Terraform for Instance 1
+    - name: Set up Terraform for genesis
       uses: hashicorp/setup-terraform@v1
       with:
         terraform_version: 1.0.0  
@@ -21,11 +21,11 @@ jobs:
     - name: Debugging Info
       run: terraform validate
 
-    - name: Initialize Terraform for Instance 1
+    - name: Initialize Terraform for genesis
       run: terraform init
 
-    - name: Apply Terraform for Instance 1
-      run: terraform apply -auto-approve -chdir=genesis/genesis.tf
+    - name: Apply Terraform for genesis
+      run: terraform apply -auto-approve
       if: env.INSTANCES_EXIST != 'true'
 
   terraform_validators:
@@ -44,7 +44,7 @@ jobs:
       run: terraform init
 
     - name: Apply Terraform for validators
-      run: terraform apply -auto-approve -chdir=validators/validator.tf
+      run: terraform apply -auto-approve
       if: env.INSTANCES_EXIST != 'true'
 
   ansible_genesis:
