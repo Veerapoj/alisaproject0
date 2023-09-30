@@ -18,18 +18,16 @@ jobs:
       with:
         terraform_version: 1.0.0
 
-    - name: Check for existing GCP instances
-      id: check-instances
-      run: |
-        existing_instances=$(terraform state list | grep google_compute_instance) || true
-        echo "::set-output name=instances_exist::$(if [ -n "$existing_instances" ]; then echo "true"; else echo "false"; fi)"
-      continue-on-error: true
+    - name: Terra Destroy
+      id: destroy
+      run: terraform destroy -auto-approve
 
     - name: Initialize Terraform for main
+      if: ${{ !steps.destroy.outputs.skip }}
       run: terraform init
 
     - name: Apply Terraform for main
-      if: steps.check-instances.outputs.instances_exist != 'true'
+      if: ${{ !steps.destroy.outputs.skip }}
       run: terraform apply -auto-approve
 
   # terraform_genesis:
