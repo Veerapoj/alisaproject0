@@ -1,0 +1,225 @@
+---
+- name: Install and configure Sawtooth
+  hosts: validator02 #"{{ lookup('file', 'ansible_inventory.txt') }}"  # Use the IP address from the inventory file
+  tasks:
+    - name: Create sawtooth group
+      group:
+        name: sawtooth
+        state: present
+      become: true
+
+    - name: Ensure the group 'sawtooth' exists
+      group:
+        name: sawtooth
+        state: present
+
+    - name: Ensure the user 'alisaproject0' exists
+      user:
+        name: alisaproject0
+        state: present
+        groups: sawtooth  # Add 'alisaproject0' to the 'sawtooth' group
+      become: true
+  
+    - name: Install gnupg package
+      apt:
+        name: gnupg
+        state: present  # Ensure the package is installed
+      become: true
+
+    - name: Add Sawtooth APT repository key
+      apt_key:
+        keyserver: hkp://keyserver.ubuntu.com:80
+        id: 8AA7AF1F1091A5FD
+      become: true
+
+    - name: Add Sawtooth APT repository
+      apt_repository:
+        repo: 'deb [arch=amd64] http://repo.sawtooth.me/ubuntu/chime/stable bionic universe'
+        state: present
+      become: true
+
+    - name: Update APT cache
+      apt:
+        update_cache: yes
+      become: true
+
+    - name: Install required packages
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - sawtooth
+        - python3-sawtooth-poet-cli
+        - python3-sawtooth-poet-engine
+        - python3-sawtooth-poet-families
+      become: true
+
+    - name: Run sawtooth keygen
+      command: sawtooth keygen
+    
+    - name: Execute sawadm keygen
+      command: sawadm keygen  # Add the --force option to force overwriting existing files
+      become: true  # Elevate privileges for this specific task
+
+    - name: Ensure validator.priv file exists
+      file:
+        path: /etc/sawtooth/keys/validator.priv
+        state: touch  # Ensure the file exists (create it if absent)
+        owner: root
+        group: sawtooth
+        mode: '0640'  # Set the permissions in octal format
+      become: true  # Elevate privileges for this specific task
+
+    - name: Ensure validator.pub file exists
+      file:
+        path: /etc/sawtooth/keys/validator.pub
+        state: touch  # Ensure the file exists (create it if absent)
+        owner: root
+        group: sawtooth
+        mode: '0644'  # Set the permissions in octal format
+      become: true  # Elevate privileges for this specific task
+
+    - name: Set permissions on Sawtooth keys directory
+      file:
+        path: /etc/sawtooth/keys
+        state: directory
+        owner: root
+        group: sawtooth
+        mode: '0755'  # Set the permissions in octal format
+      become: true  # Elevate privileges for this specific task
+    
+    - name: Get the login name
+      set_fact:
+        login_name: "{{ lookup('env', 'USER') }}"
+
+    - name: Copy validator.toml configuration file
+      command: "cp -a /etc/sawtooth/validator.toml.example /etc/sawtooth/validator.toml"
+      become: true
+
+    - name: Set GCP project and credentials file
+      set_fact:
+        gcp_project: "alisa-dev"
+        gcp_cred_file: "../blockchain.json"
+
+    - name: Get GCP instances facts
+      gcp_compute_instance_facts:
+        project: "{{ gcp_project }}"
+        auth_kind: serviceaccount
+        service_account_file: "{{ gcp_cred_file }}"
+        zone: "asia-southeast1-a"
+      register: gcp_instances
+
+    - name: Extract public IP address
+      set_fact:
+        public_ip_genesis: "{{ gcp_instances.resources[0].networkInterfaces[0].accessConfigs[0].natIP }}"
+        public_ip_validator01: "{{ gcp_instances.resources[1].networkInterfaces[1].accessConfigs[1].natIP }}"
+        public_ip_validator02: "{{ gcp_instances.resources[2].networkInterfaces[2].accessConfigs[2].natIP }}"
+        public_ip_validator03: "{{ gcp_instances.resources[3].networkInterfaces[3].accessConfigs[3].natIP }}"
+
+    - name: Update validator.toml
+      block:
+        - name: Update bind lines
+          replace:
+            path: /etc/sawtooth/validator.toml
+            regexp: '127.0.0.1'
+            replace: '0.0.0.0'
+
+        - name: Update endpoint line
+          lineinfile:
+            path: /etc/sawtooth/validator.toml
+            regexp: '^(endpoint = "tcp://).*'
+            line: 'endpoint = "tcp://{{ public_ip_validator02 }}:8800"'
+
+        - name: Update peers line
+          replace:
+            path: /etc/sawtooth/validator.toml
+            regexp: '^# peers = \["tcp://host1:8800"\]'
+            replace: 'peers = ["tcp://{{ public_ip_genesis }}:8800", ["tcp://{{ public_ip_validator01 }}:8800"], ["tcp://{{ public_ip_validator03 }}:8800"]]'
+      become: true
+
+    - name: Set permissions on validator.toml
+      command: "chown root:sawtooth /etc/sawtooth/validator.toml"
+      become: true
+    
+    - name: Set file mode on validator.toml
+      command: "chmod 640 /etc/sawtooth/validator.toml"
+      become: true
+
+    - name: Restart Sawtooth Validator service
+      service:
+        name: sawtooth-validator
+        state: restarted
+      become: true
+
+    - name: Copy rest_api.toml configuration file
+      command: "cp -a /etc/sawtooth/rest_api.toml.example /etc/sawtooth/rest_api.toml"
+      become: true
+
+    - name: Update bind and connect lines
+      block:
+        - name: Update bind lines
+          replace:
+            path: /etc/sawtooth/rest_api.toml
+            regexp: '^#   bind = \["127.0.0.1:8008"\]'
+            replace: '   bind = ["0.0.0.0:8008"]'
+
+        - name: Update connect line
+          replace:
+            path: /etc/sawtooth/rest_api.toml
+            regexp: '^#   connect = "tcp://localhost:4004"'
+            replace: '   connect = "tcp://localhost:4004"'
+      become: true
+
+    - name: Restart Sawtooth REST API service
+      service:
+        name: sawtooth-rest-api
+        state: restarted
+      become: true
+
+    - name: Copy cli.toml configuration file
+      command: "cp -a /etc/sawtooth/cli.toml.example /etc/sawtooth/cli.toml"
+      become: true
+
+    - name: Edit cli.toml (if needed)
+      replace:
+            path: /etc/sawtooth/cli.toml
+            regexp: '^#   url = "http://localhost:8008"'
+            replace: '   url = "http://localhost:8008"'
+      become: true    
+
+    - name: Stop and Start Sawtooth Services
+      block:
+        - name: Stop Sawtooth Services
+          systemd:
+            name: "{{ item }}"
+            state: stopped
+          loop:
+            - sawtooth-rest-api.service
+            - sawtooth-validator.service
+            - sawtooth-settings-tp.service
+            - sawtooth-identity-tp.service
+            - sawtooth-intkey-tp-python.service
+            - sawtooth-poet-validator-registry-tp.service
+            - sawtooth-poet-engine.service
+          register: stopped_services
+
+        - name: Start Sawtooth Services
+          systemd:
+            name: "{{ item }}"
+            state: started
+          loop:
+            - sawtooth-rest-api.service
+            - sawtooth-validator.service
+            - sawtooth-settings-tp.service
+            - sawtooth-identity-tp.service
+            - sawtooth-intkey-tp-python.service
+            - sawtooth-poet-validator-registry-tp.service
+            - sawtooth-poet-engine.service
+          register: started_services
+      become: true
+
+    - name: Log Service Status
+      shell: echo "{{ item.item }} is {{ item.status }}" >> /path/to/log_service.txt
+      loop: "{{ stopped_services.results + started_services.results }}"
+      loop_control:
+        label: "{{ item.item }}"

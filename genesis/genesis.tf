@@ -1,6 +1,6 @@
 # Configure the Google Cloud provider
 provider "google" {
-  credentials = file("blockchain.json")
+  credentials = file("../blockchain.json")
   project     = "alisa-dev"
   region      = "asia-southeast1"  # Singapore region for both instances and static IPs
 }
@@ -35,8 +35,8 @@ resource "google_compute_instance" "genesis" {
 }
 
 # Create a firewall rule to allow desired ports
-resource "google_compute_firewall" "my-allow-ports" {
-  name    = "my-allow-ports"
+resource "google_compute_firewall" "neesis-allow-ports" {
+  name    = "genesis-allow-ports"
   network = "default"
 
   allow {

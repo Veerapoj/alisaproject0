@@ -6,33 +6,122 @@ on:
       - main  # Change to your desired branch
 
 jobs:
-  build:
+  terraform_genesis:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Terraform
+    - name: Set up Terraform for Instance 1
       uses: hashicorp/setup-terraform@v1
       with:
-        terraform_version: 1.0.0  # Use the version you need
+        terraform_version: 1.0.0  
 
-    - name: Initialize Terraform
-      run: terraform init
+    - name: Initialize Terraform for Instance 1
+      run: terraform init -chdir=genesis/genesis.tf
 
-    - name: Apply Terraform
-      run: terraform apply -auto-approve
+    - name: Apply Terraform for Instance 1
+      run: terraform apply -auto-approve -chdir=genesis/genesis.tf
 
-    - name: Configure Ansible
+  terraform_validators:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform for validators
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.0.0  
+
+    - name: Initialize Terraform for validators
+      run: terraform init -chdir=validators/validator.tf
+
+    - name: Apply Terraform for validators
+      run: terraform apply -auto-approve -chdir=validators/validator.tf
+
+  ansible_genesis:
+    runs-on: ubuntu-latest
+    needs: terraform_genesis
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
       run: |
-        # Install Ansible (if not already installed)
+        sudo apt-get update
+        sudo apt-get install -y software-properties-common
+        sudo apt-add-repository ppa:ansible/ansible
         sudo apt-get update
         sudo apt-get install -y ansible
+        sudo ansible-galaxy collection install community.google
+        sudo pip install google-auth
 
-        # Run Ansible playbook
-        ansible-playbook ansible.yml
+    - name: Configure Ansible for genesis
+      run: |
+        # # Set up Google Cloud JSON authentication file for genesis
+        # echo "$GCP_AUTH_JSON" > gcp-auth.json
+        # export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth.json
 
-    - name: Cleanup
-      run: terraform destroy -auto-approve
+        # Run Ansible playbook for genesis
+        ansible-playbook genesis/ansible-genesis.yml
 
+  ansible_validators:
+    runs-on: ubuntu-latest
+    needs: terraform_validators
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y software-properties-common
+        sudo apt-add-repository ppa:ansible/ansible
+        sudo apt-get update
+        sudo apt-get install -y ansible
+        sudo ansible-galaxy collection install community.google
+        sudo pip install google-auth
+
+    - name: Configure Ansible for Validators
+      run: |
+        # Set up Google Cloud JSON authentication file for validator01
+        # echo "$GCP_AUTH_JSON_VALIDATOR01" > gcp-auth-validator01.json
+        # export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator01.json
+
+        # Run Ansible playbook for validator01
+        ansible-playbook ansible-validators01.yaml
+
+        # Set up Google Cloud JSON authentication file for validator02
+        # echo "$GCP_AUTH_JSON_VALIDATOR02" > gcp-auth-validator02.json
+        # export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator02.json
+
+        # Run Ansible playbook for validator02
+        ansible-playbook ansible-validators02.yaml
+
+        # Set up Google Cloud JSON authentication file for validator03
+        # echo "$GCP_AUTH_JSON_VALIDATOR03" > gcp-auth-validator03.json
+        # export GOOGLE_APPLICATION_CREDENTIALS=$(pwd)/gcp-auth-validator03.json
+
+        # Run Ansible playbook for validator03
+        ansible-playbook ansible-validators03.yaml
+
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: [ansible_genesis, ansible_validators]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Cleanup Terraform
+      run: |
+        # Destroy Terraform resources for _genesis
+        terraform destroy -auto-approve -chdir=genesis/genesis.tf
+
+        # Destroy Terraform resources for validators
+        terraform destroy -auto-approve -chdir=validators/validator.tf

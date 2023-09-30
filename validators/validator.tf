@@ -1,6 +1,6 @@
 # Configure the Google Cloud provider
 provider "google" {
-  credentials = file("blockchain.json")
+  credentials = file("../blockchain.json")
   project     = "alisa-dev"
   region      = "asia-southeast1"  # Singapore region for both instances and static IPs
 }
@@ -41,7 +41,7 @@ resource "google_compute_instance" "validator" {
 }
 
 resource "google_compute_firewall" "validator-allow-ports" {
-  name    = "my-allow-ports"
+  name    = "validator-allow-ports"
   network = "default"
 
   allow {
